@@ -20,15 +20,17 @@ module.exports.saveRedirectUrl = (req, res, next) => {
 };
 
 module.exports.isOwner = async (req, res, next) => {
-  let{ id } = req.params;
+  try{let{ id } = req.params;
   let listing = await Listing.findById(id);
   if(!listing.owner.equals(res.locals.currUser._id)) {
     req.flash("error", "You are not owner of this listing");
     return res.redirect(`/listings/${id}`);
   }
   next();
-};
-
+  }catch(err){
+     next(new ExpressError(400, "This Listing page is now valid"));
+  }
+}
 module.exports.validateListing = (req, res, next) => {
   let { error } = listingSchema.validate(req.body);
   if(error) {
